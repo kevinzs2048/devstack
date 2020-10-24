@@ -333,7 +333,7 @@ function _ensure_lsb_release {
     elif [[ -x $(command -v zypper 2>/dev/null) ]]; then
         sudo zypper -n install lsb-release
     elif [[ -x $(command -v dnf 2>/dev/null) ]]; then
-        sudo dnf install -y redhat-lsb-core openeuler-lsb
+        sudo dnf install -y redhat-lsb-core
     else
         die $LINENO "Unable to find or auto-install lsb_release"
     fi
@@ -501,13 +501,11 @@ function is_ubuntu {
 }
 
 function is_openeuler {
-    if [[ -z "$os_VENDOR" ]]; then
+     if [[ -z "$os_PACKAGE" ]]; then
         GetOSVersion
     fi
-
-    [[ "$os_VENDOR" =~ (openEuler) ]]
+    [ "$os_PACKAGE" = "rpm" ]
 }
-
 # Git Functions
 # =============
 
@@ -1339,11 +1337,13 @@ function update_package_repo {
 
 function real_install_package {
     if is_ubuntu; then
-        apt_get install "$@"    elif [[ is_fedora || is_openeuler ]]; then
-
+        apt_get install "$@"
+    elif is_fedora; then
         yum_install "$@"
     elif is_suse; then
         zypper_install "$@"
+    elif is_openeuler; then
+        yum_install "$@"
     else
         exit_distro_not_supported "installing packages"
     fi
@@ -1383,10 +1383,12 @@ function is_package_installed {
 function uninstall_package {
     if is_ubuntu; then
         apt_get purge "$@"
-    elif [[ is_fedora || is_openeuler ]]; then
+    elif is_fedora; then
         sudo dnf remove -y "$@" ||:
     elif is_suse; then
         sudo zypper remove -y "$@" ||:
+    elif is_openeuler; then
+        sudo dnf remove -y "$@" ||:
     else
         exit_distro_not_supported "uninstalling packages"
     fi
