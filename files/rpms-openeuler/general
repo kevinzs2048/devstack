@@ -6,6 +6,7 @@ gcc-c++
 gettext  # used for compiling message catalogs
 git-core
 graphviz # needed only for docs
+hostname
 httpd
 httpd-devel
 iptables-services

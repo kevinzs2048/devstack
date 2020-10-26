@@ -334,6 +334,9 @@ function _ensure_lsb_release {
         sudo zypper -n install lsb-release
     elif [[ -x $(command -v dnf 2>/dev/null) ]]; then
         sudo dnf install -y redhat-lsb-core
+        if [ $? -eq 1 ]; then
+            sudo dnf install -y openeuler-lsb
+	fi
     else
         die $LINENO "Unable to find or auto-install lsb_release"
     fi
